@@ -63,7 +63,7 @@ def drawFigures():
 
     # Figure 3 - Trajectories
     print('\n*** Starting Fig 1 Sims ***')
-    idc = 30
+    idc = 10
     # create, simulate model objects with the given time series and [ATP] in M
     t = np.linspace( 0, 48*idc, int(48*idc*100) ) # time vector to evaluate
     #ms = multiSim(20,t)
@@ -199,7 +199,7 @@ def fig1(models):
 
     t = models[0].t[:] # get time values
 
-    plt.figure(figsize=(6, 12), dpi=200) # make new figure
+    plt.figure(figsize=(8, 10), dpi=200) # make new figure
     ax = plt.subplot(6, 1, 1) # get axis
     for m in models:
         plt.plot(m.t, m.x[P,0,:], color=cb_palette[2], alpha=0.2, linewidth=1) # plot
@@ -211,7 +211,7 @@ def fig1(models):
     # plt.plot(t, sol.y[0,:], label=r'$A,B$', color=cb_palette[2])
     # plt.plot(t, sol.y[2,:], label=r'$C$', color=cb_palette[1])
     plt.xlabel('Time (h)') # labels
-    plt.ylabel('PfEMP1 proteins (AU)')
+    plt.ylabel('PfEMP1 proteins \n(count)')
     handles, labels = ax.get_legend_handles_labels() # get legend
     plt.legend(handles, labels, loc='upper right') # show it
 
@@ -226,7 +226,7 @@ def fig1(models):
     # plt.plot(t, sol.y[0,:], label=r'$A,B$', color=cb_palette[2])
     # plt.plot(t, sol.y[2,:], label=r'$C$', color=cb_palette[1])
     plt.xlabel('Time (h)') # labels
-    plt.ylabel('NBP complex (count)')
+    plt.ylabel('NBP complex \n(count)')
     handles, labels = ax.get_legend_handles_labels() # get legend
     plt.legend(handles, labels, loc='upper right') # show it
 
@@ -241,7 +241,7 @@ def fig1(models):
     # plt.plot(t, sol.y[0,:], label=r'$A,B$', color=cb_palette[2])
     # plt.plot(t, sol.y[2,:], label=r'$C$', color=cb_palette[1])
     plt.xlabel('Time (h)') # labels
-    plt.ylabel('aslncRNA (count)')
+    plt.ylabel('aslncRNA \n(count)')
     handles, labels = ax.get_legend_handles_labels() # get legend
     plt.legend(handles, labels, loc='upper right') # show it
 
@@ -256,7 +256,7 @@ def fig1(models):
     # plt.plot(t, sol.y[0,:], label=r'$A,B$', color=cb_palette[2])
     # plt.plot(t, sol.y[2,:], label=r'$C$', color=cb_palette[1])
     plt.xlabel('Time (h)') # labels
-    plt.ylabel('slncRNA (count)')
+    plt.ylabel('slncRNA \n(count)')
     handles, labels = ax.get_legend_handles_labels() # get legend
     plt.legend(handles, labels, loc='upper right') # show it
 
@@ -271,15 +271,15 @@ def fig1(models):
     # plt.plot(t, sol.y[0,:], label=r'$A,B$', color=cb_palette[2])
     # plt.plot(t, sol.y[2,:], label=r'$C$', color=cb_palette[1])
     plt.xlabel('Time (h)') # labels
-    plt.ylabel('Euchromatin (count)')
+    plt.ylabel('Euchromatin \n(count)')
     handles, labels = ax.get_legend_handles_labels() # get legend
     plt.legend(handles, labels, loc='upper right') # show it
 
     ax = plt.subplot(6, 1, 6) # get axis
-    T = m.mu * np.power( np.cos( (m.t-m.xi)*np.pi/m.lam ), 2*m.nu )
+    T = m.mu * np.power( np.sin( (m.t-m.xi)*np.pi/m.lam ), 2*m.nu )
     plt.plot(m.t, T, color=cb_palette[3], label=r'Cell cycle TF', alpha=1, linewidth=1) # plot
     plt.xlabel('Time (h)') # labels
-    plt.ylabel('Transcription factor (count)')
+    plt.ylabel('Transcription factor \n(AU)')
     handles, labels = ax.get_legend_handles_labels() # get legend
     plt.legend(handles, labels, loc='upper right') # show it
 
@@ -341,21 +341,21 @@ class StocModel(object):
         self.h_H = 1
         self.h_N = 1
 
-        self.alp = 2e0
+        self.alp = 5e1
         self.bet = 1e0
         self.gam = np.array( [1e1]*N_GEN )
         self.dlt = 1e0 # .del appears to be reserved
-        self.eps = 1e-3
-        self.zet = 1e-3
+        self.eps = 5e-1
+        self.zet = 5e-1
         self.eta = 1e1
         self.the = 2e-1
         self.iot = 1e0
-        self.kap = 1e0
+        self.kap = 1e-1
 
         self.lam = 48
         self.mu = 2
         self.nu = 1
-        self.xi = 24
+        self.xi = 0
 
         self.d = np.array( [100]*N_GEN )
             # total DNA positions for modification available for each gene
@@ -392,7 +392,7 @@ class StocModel(object):
                 Includes total rate under 'tot' key.
         '''
 
-        T = self.mu * np.power( np.cos( (self.t_var-self.xi)*np.pi/self.lam ), 2*self.nu )
+        T = self.mu * np.power( np.sin( (self.t_var-self.xi)*np.pi/self.lam ), 2*self.nu )
             # TF concentration at this time
 
         rates = np.zeros( [ len(self.evt_IDs),N_GEN ] )
@@ -407,11 +407,11 @@ class StocModel(object):
         )
 
         rates[E_F,:] = (
-            self.eps * self.x_var[N,:] * (self.d - self.x_var[E,:]) * np.power( (self.d - self.x_var[E,:]),self.h_E ) / ( ( np.power( (self.d - self.x_var[E,:]),self.h_E ) + np.power(self.k_E,self.h_E) ) )
+            self.eps * self.x_var[N,:] * np.power( (self.d - self.x_var[E,:]),self.h_E ) / ( ( np.power( (self.d - self.x_var[E,:]),self.h_E ) + np.power(self.k_E,self.h_E) ) )
         )
 
         rates[E_B,:] = (
-            self.zet * np.sum(self.x_var[S,:]) * self.x_var[E,:] * np.power(self.x_var[E,:],self.h_H) / ( ( np.power(self.x_var[E,:],self.h_H) + np.power(self.k_H,self.h_H) ) )
+            self.zet * np.sum(self.x_var[S,:]) * np.power(self.x_var[E,:],self.h_H) / ( ( np.power(self.x_var[E,:],self.h_H) + np.power(self.k_H,self.h_H) ) )
         )
 
         rates[N_F,:] = (
@@ -493,12 +493,24 @@ class StocModel(object):
         self.t_var = self.t[0] # keeps track of time
         self.x[:,:,0] = self.x_var # initialize distance at current distance
         i = 0 # keeps track of index within x and t_vec lists
+        intervention_tracker = False # keeps track of what the next intervention should be
 
         while self.t_var < self.t[-1]:
                 # repeat until t reaches end of timecourse
             r = self.getRates() # get event rates in this state
             r_tot = np.sum(r) # sum of all rates
             print(self.t_var)
+            if not intervention_tracker and self.t_var > 124: # if there are any interventions left and if it is time to make one,
+                # self.x_var[R,0] = 0 # get rid of all aslncRNA for gene 0
+                # self.x_var[R,1] += 2500 # add aslncRNA for gene 1
+
+                # self.eps = 0 # get rid of all euchromatin markers
+                # self.eps = self.eps*10 # add all euchromatin markers
+                self.zet = 0 # get rid of all heterochromatin markers
+                # self.dlt = self.dlt/10 # get rid of all aslncRNAses
+
+                intervention_tracker = True # advance the tracker
+
             if 1/self.max_dt < r_tot: # if average time to next event is less than maximum permitted time step,
                 # allow it, calculate probability
                 # Time handling
